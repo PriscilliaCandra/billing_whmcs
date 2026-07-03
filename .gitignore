@@ -1,0 +1,25 @@
+# Environment / secrets (kredensial MySQL, dll) — .env.example TETAP di-commit
+.env
+
+# Legacy SQLite database (app kini memakai MySQL; file ini tak dipakai lagi bila masih ada)
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+# Local-only public tunnel binary (52MB, machine-specific, re-download via tools/start-tunnel.bat)
+tools/cloudflared.exe
+tools/cloudflared.log
+
+# Node
+node_modules/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+
+# Claude Code local preview config (not part of the app)
+.claude/
+
+# Scratch/log files from local testing
+scratch_*
+*.log

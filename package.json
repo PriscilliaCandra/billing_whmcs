@@ -1,0 +1,18 @@
+{
+  "name": "whmcs-sahabat-ai",
+  "version": "1.0.0",
+  "description": "WHMCS-style admin + billing dashboard for Sahabat AI (zero external dependencies)",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node src/schema.js --seed",
+    "reset": "node src/schema.js --reset"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "mysql2": "^3.22.5"
+  }
+}
