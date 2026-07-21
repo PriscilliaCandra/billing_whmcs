@@ -3,7 +3,8 @@
 const { get, all, run } = require('../src/db');
 const { publicLayout, esc, badge, rupiah, fmtDate, LOGO_SVG, ICON } = require('../src/views/ui');
 const { authenticateClient, getClientById } = require('../src/services/auth');
-const { hashPassword } = require('../src/lib/crypto');
+const { hashPassword, randomId } = require('../src/lib/crypto');
+const { verifyJwtHs256 } = require('../src/lib/jwtVerify'); // === SSO BILLING ===
 const { createOrder, markInvoicePaid, renewService, isFirstPurchase, termPrice, TERM_LABELS } = require('../src/services/orders');
 const { nowISO } = require('../src/lib/format');
 
@@ -128,6 +129,41 @@ module.exports = function registerClient(router) {
     ctx.redirect(next);
   });
   router.get('/logout', (ctx) => { ctx.session.clientId = null; ctx.redirect('/'); });
+
+  // ===================== SSO (dari OmsetAI, TANPA register ulang) =====================
+  // === SSO BILLING === owner klik "Kelola Langganan" di dalam OmsetAI → dilempar ke sini
+  // bawa token JWT umur pendek (2 menit, claim purpose="billing-sso", ditandatangani
+  // OmsetAI backend). Verifikasi pakai secret yang SAMA (JWT_SECRET di .env billing —
+  // WAJIB di-set manual, nilainya harus SAMA PERSIS dgn .env OmsetAI). Email cocok →
+  // login; belum ada → buat client OTOMATIS (password acak, user tak pernah perlu tahu —
+  // selalu masuk lewat SSO atau reset password nanti kalau mau login manual).
+  router.get('/sso', async (ctx) => {
+    const token = ctx.query.token;
+    if (!token) { ctx.flash('error', 'Link SSO tidak lengkap.'); return ctx.redirect('/login'); }
+    const secret = process.env.JWT_SECRET;
+    if (!secret) { ctx.flash('error', 'SSO belum dikonfigurasi di server ini (JWT_SECRET kosong).'); return ctx.redirect('/login'); }
+    const payload = verifyJwtHs256(token, secret);
+    if (!payload || payload.purpose !== 'billing-sso' || !payload.email) {
+      ctx.flash('error', 'Link SSO tidak valid atau sudah kadaluarsa — coba lagi dari OmsetAI.');
+      return ctx.redirect('/login');
+    }
+    const email = String(payload.email).trim();
+    let client = await get('SELECT * FROM clients WHERE email=?', email);
+    if (!client) {
+      const fullName = String(payload.name || '').trim();
+      const firstName = fullName.split(' ')[0] || email.split('@')[0];
+      const lastName = fullName.split(' ').slice(1).join(' ');
+      const res = await run(`INSERT INTO clients (first_name,last_name,email,password,company,phone,sahabatai_account,status,created_at)
+        VALUES (?,?,?,?,?,?,?,?,?)`,
+        firstName, lastName, email, hashPassword(randomId(24)),
+        payload.company || '', '', email, 'Active', nowISO());
+      client = await get('SELECT * FROM clients WHERE id=?', res.insertId);
+      ctx.flash('success', `Akun billing dibuat otomatis dari OmsetAI. Selamat datang, ${firstName}!`);
+    }
+    if (client.status !== 'Active') { ctx.flash('error', 'Akun tidak aktif. Hubungi admin.'); return ctx.redirect('/login'); }
+    ctx.session.clientId = client.id;
+    ctx.redirect('/clientarea');
+  });
 
   // ===================== CHECKOUT (cart.php equivalent) =====================
   router.get('/order', requireClient, async (ctx) => {
