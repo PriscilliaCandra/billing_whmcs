@@ -1,7 +1,7 @@
 'use strict';
 // Admin area routes (WHMCS-style).
 const { get, all, run } = require('../src/db');
-const { adminLayout, esc, badge, rupiah, fmtDate, fmtDateTime, pager, trendChart } = require('../src/views/ui');
+const { adminLayout, esc, badge, rupiah, fmtDate, fmtDateTime, pager, trendChart, ICON } = require('../src/views/ui');
 const { getAdminById, authenticateAdmin, can } = require('../src/services/auth');
 const { activateOrder, markInvoicePaid, renewService, createOrder, isFirstPurchase, termPrice, TERM_LABELS } = require('../src/services/orders');
 const { hashPassword, verifyPassword } = require('../src/lib/crypto');
@@ -139,10 +139,10 @@ module.exports = function registerAdmin(router) {
       <div class="page-head"><div><h1>Dashboard</h1><div class="sub">Ringkasan billing OmsetAI</div></div></div>
 
       <div class="stats">
-        <div class="stat-wh c-green"><div class="stat-ic">🛒</div><div><div class="stat-num">${pendingOrders}</div><div class="stat-lbl">Pending Orders</div></div></div>
-        <div class="stat-wh c-pink"><div class="stat-ic">🧾</div><div><div class="stat-num">${unpaid.c}</div><div class="stat-lbl">Invoice Belum Dibayar</div></div></div>
-        <div class="stat-wh c-orange"><div class="stat-ic">⏰</div><div><div class="stat-num">${expiringSoon}</div><div class="stat-lbl">Layanan Jatuh Tempo 7 Hari</div></div></div>
-        <div class="stat-wh c-teal"><div class="stat-ic">👤</div><div><div class="stat-num">${newClients}</div><div class="stat-lbl">Klien Baru Bulan Ini</div></div></div>
+        <div class="stat-wh c-green"><div class="stat-ic">${ICON.cart(20)}</div><div><div class="stat-num">${pendingOrders}</div><div class="stat-lbl">Pending Orders</div></div></div>
+        <div class="stat-wh c-pink"><div class="stat-ic">${ICON.receipt(20)}</div><div><div class="stat-num">${unpaid.c}</div><div class="stat-lbl">Invoice Belum Dibayar</div></div></div>
+        <div class="stat-wh c-orange"><div class="stat-ic">${ICON.clock(20)}</div><div><div class="stat-num">${expiringSoon}</div><div class="stat-lbl">Layanan Jatuh Tempo 7 Hari</div></div></div>
+        <div class="stat-wh c-teal"><div class="stat-ic">${ICON.user(20)}</div><div><div class="stat-num">${newClients}</div><div class="stat-lbl">Klien Baru Bulan Ini</div></div></div>
       </div>
 
       <div class="grid-2">
@@ -151,10 +151,10 @@ module.exports = function registerAdmin(router) {
         </div>
         <div class="card"><div class="card-head"><h3>Aktivitas Bulan Ini</h3></div>
           <div class="icon-grid">
-            <div class="ig-item"><div class="ig-ic">🧾</div><div class="ig-num">${invoicesThisMonth}</div><div class="ig-lbl">Invoice Dibuat</div></div>
-            <div class="ig-item"><div class="ig-ic">✓</div><div class="ig-num">${ordersActiveThisMonth}</div><div class="ig-lbl">Order Aktif</div></div>
-            <div class="ig-item"><div class="ig-ic">↻</div><div class="ig-num">${renewalsThisMonth}</div><div class="ig-lbl">Perpanjangan</div></div>
-            <div class="ig-item"><div class="ig-ic">👤</div><div class="ig-num">${newClients}</div><div class="ig-lbl">Klien Baru</div></div>
+            <div class="ig-item"><div class="ig-ic">${ICON.receipt(18)}</div><div class="ig-num">${invoicesThisMonth}</div><div class="ig-lbl">Invoice Dibuat</div></div>
+            <div class="ig-item"><div class="ig-ic">${ICON.check(18)}</div><div class="ig-num">${ordersActiveThisMonth}</div><div class="ig-lbl">Order Aktif</div></div>
+            <div class="ig-item"><div class="ig-ic">${ICON.refresh(18)}</div><div class="ig-num">${renewalsThisMonth}</div><div class="ig-lbl">Perpanjangan</div></div>
+            <div class="ig-item"><div class="ig-ic">${ICON.user(18)}</div><div class="ig-num">${newClients}</div><div class="ig-lbl">Klien Baru</div></div>
           </div>
         </div>
       </div>
@@ -415,7 +415,7 @@ module.exports = function registerAdmin(router) {
     const body = `
       <div class="page-head"><div><h1>Order ${esc(o.order_num)}</h1><div class="sub">${fmtDateTime(o.created_at)} · ${badge(o.status)}</div></div>
       <div style="display:flex;gap:.5rem">
-        ${o.status === 'Pending' ? `<form method="post" action="/admin/orders/${o.id}/accept"><button class="btn">✓ Terima Order</button></form>
+        ${o.status === 'Pending' ? `<form method="post" action="/admin/orders/${o.id}/accept"><button class="btn" style="display:inline-flex;align-items:center;gap:.4rem">${ICON.check(14)} Terima Order</button></form>
           <form method="post" action="/admin/orders/${o.id}/cancel" onsubmit="return confirm('Batalkan order?')"><button class="btn btn-danger">Batalkan</button></form>` : ''}
       </div></div>
       <div class="grid-2">

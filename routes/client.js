@@ -1,7 +1,7 @@
 'use strict';
 // Public storefront + client area routes.
 const { get, all, run } = require('../src/db');
-const { publicLayout, esc, badge, rupiah, fmtDate, LOGO_SVG } = require('../src/views/ui');
+const { publicLayout, esc, badge, rupiah, fmtDate, LOGO_SVG, ICON } = require('../src/views/ui');
 const { authenticateClient, getClientById } = require('../src/services/auth');
 const { hashPassword } = require('../src/lib/crypto');
 const { createOrder, markInvoicePaid, renewService, isFirstPurchase, termPrice, TERM_LABELS } = require('../src/services/orders');
@@ -50,7 +50,7 @@ module.exports = function registerClient(router) {
       <div class="hero">
         <h1>Harga OmsetAI</h1>
         <p>Pilih paket WhatsApp AI CRM sesuai skala bisnis Anda. Bayar per 3 bulan, 6 bulan, atau 1 tahun.</p>
-        <div class="note">🔒 Wajib punya akun OmsetAI dulu — daftar di <a href="https://ai.indotrading.com/" target="_blank" style="text-decoration:underline">ai.indotrading.com</a>, lalu order di sini.</div>
+        <div class="note" style="display:flex;align-items:center;gap:.4rem">${ICON.lock(14)} Wajib punya akun OmsetAI dulu — daftar di <a href="https://ai.indotrading.com/" target="_blank" style="text-decoration:underline">ai.indotrading.com</a>, lalu order di sini.</div>
         <div><div class="term-toggle" id="termToggle">
           ${TERMS.map((t) => `<button data-term="${t.n}" class="${t.n === 12 ? 'active' : ''}">${t.label}</button>`).join('')}
         </div></div>
@@ -175,7 +175,7 @@ module.exports = function registerClient(router) {
     const body = `
     <div class="client-header"><div class="inner">
       <div><div style="display:flex;align-items:center;gap:.5rem;color:#bfe0d1;font-size:.85rem"><span style="width:28px;height:28px;border-radius:50%;background:var(--green);display:grid;place-items:center">${LOGO_SVG}</span>Client Area</div>
-      <h1 style="color:#fff;margin:.3rem 0 0">Halo, ${esc(c.first_name)} 👋</h1><div style="color:#bfe0d1">${esc(c.company || c.email)}</div></div>
+      <h1 style="color:#fff;margin:.3rem 0 0">Halo, ${esc(c.first_name)}</h1><div style="color:#bfe0d1">${esc(c.company || c.email)}</div></div>
       <div class="right"><div style="color:#bfe0d1;font-size:.8rem">Tagihan belum dibayar</div><div style="font-size:1.5rem;font-weight:800;color:#fff">${rupiah(dueTotal)}</div>
       <a href="/" class="btn btn-sm" style="margin-top:.5rem">+ Beli Paket Lagi</a></div>
     </div></div>

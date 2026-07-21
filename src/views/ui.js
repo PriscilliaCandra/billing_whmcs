@@ -13,6 +13,24 @@ function esc(s) {
 // Inline SVG logo mark used across public + admin.
 const LOGO_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.5 2 2 5.9 2 10.7c0 2.7 1.4 5.1 3.6 6.7L4.8 22l4.4-2.3c.9.2 1.8.3 2.8.3 5.5 0 10-3.9 10-8.7S17.5 2 12 2Z" fill="currentColor"/></svg>`;
 
+// === REBRAND: hapus emoji/icon berwarna === set ikon garis monokrom (stroke=
+// currentColor, gaya sama seperti LOGO_SVG) menggantikan emoji pictograph
+// (🛒🧾📄👤🔒⏰✓↻) di seluruh app — supaya tampilan konsisten profesional,
+// warna ikon ikut warna teks/kontainer di sekitarnya (tidak berwarna sendiri).
+function icon(paths, vb = 24) {
+  return (size = 16) => `<svg width="${size}" height="${size}" viewBox="0 0 ${vb} ${vb}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`;
+}
+const ICON = {
+  user:    icon('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+  cart:    icon('<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>'),
+  receipt: icon('<path d="M4 2h16v20l-3-2-2 2-2-2-2 2-2-2-2 2-3-2Z"/><path d="M8 7h8M8 11h8M8 15h5"/>'),
+  file:    icon('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/>'),
+  clock:   icon('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>'),
+  lock:    icon('<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'),
+  check:   icon('<path d="M20 6 9 17l-5-5"/>'),
+  refresh: icon('<path d="M21 12a9 9 0 0 1-15.3 6.4M3 12a9 9 0 0 1 15.3-6.4"/><path d="M21 3v6h-6M3 21v-6h6"/>'),
+};
+
 const STATUS_BADGE = {
   Active: 'badge-green', Paid: 'badge-green', Completed: 'badge-green',
   Pending: 'badge-amber', Unpaid: 'badge-amber', Suspended: 'badge-amber',
@@ -157,10 +175,10 @@ async function topNavbar(active, admin) {
 // ---- Left sidebar: Shortcuts / System Info / Staff Online (WHMCS-style) ----
 async function adminSidebar(admin) {
   const shortcuts = [
-    { perm: 'manage_clients', href: '/admin/clients/new', label: 'Add New Client', ic: '👤' },
-    { perm: 'manage_orders', href: '/admin/orders/new', label: 'Add New Order', ic: '🛒' },
-    { perm: 'manage_orders', href: '/admin/services/generate-due', label: 'Generate Due Invoices', ic: '🧾', post: true },
-    { perm: 'manage_invoices', href: '/admin/invoices', label: 'View All Invoices', ic: '📄' },
+    { perm: 'manage_clients', href: '/admin/clients/new', label: 'Add New Client', ic: ICON.user(15) },
+    { perm: 'manage_orders', href: '/admin/orders/new', label: 'Add New Order', ic: ICON.cart(15) },
+    { perm: 'manage_orders', href: '/admin/services/generate-due', label: 'Generate Due Invoices', ic: ICON.receipt(15), post: true },
+    { perm: 'manage_invoices', href: '/admin/invoices', label: 'View All Invoices', ic: ICON.file(15) },
   ].filter((s) => hasPerm(admin, s.perm));
 
   const shortcutsHtml = shortcuts.map((s) => s.post
@@ -280,4 +298,4 @@ function pager(baseUrl, page, totalPages, extra = '') {
   return html + '</div>';
 }
 
-module.exports = { esc, badge, flash, adminLayout, publicLayout, LOGO_SVG, rupiah, fmtDate, fmtDateTime, pager, trendChart };
+module.exports = { esc, badge, flash, adminLayout, publicLayout, LOGO_SVG, ICON, rupiah, fmtDate, fmtDateTime, pager, trendChart };
