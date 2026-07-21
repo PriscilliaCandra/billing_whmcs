@@ -68,15 +68,15 @@ async function createOrder(clientId, cart) {
   await run(
     `INSERT INTO services (client_id, product_id, order_id, name, type, billing_cycle, term_months, recurring_amount, setup_fee, status, reg_date, next_due_date, created_at)
      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-    clientId, pkg.id, orderId, `SahabatAI ${pkg.name}`, 'package',
+    clientId, pkg.id, orderId, `OmsetAI ${pkg.name}`, 'package',
     TERM_LABELS[term] || `${term} Bulan`, term, recurring, setup, 'Pending', today, nextDue, now
   );
   await run('INSERT INTO invoice_items (invoice_id, type, description, amount) VALUES (?,?,?,?)',
-    invoiceId, 'package', `SahabatAI ${pkg.name} — ${TERM_LABELS[term] || term + ' Bulan'} (${today} s/d ${nextDue})`, recurring);
+    invoiceId, 'package', `OmsetAI ${pkg.name} — ${TERM_LABELS[term] || term + ' Bulan'} (${today} s/d ${nextDue})`, recurring);
   total += recurring;
   if (setup > 0) {
     await run('INSERT INTO invoice_items (invoice_id, type, description, amount) VALUES (?,?,?,?)',
-      invoiceId, 'setup', `Setup Fee (one-time) — SahabatAI ${pkg.name}`, setup);
+      invoiceId, 'setup', `Setup Fee (one-time) — OmsetAI ${pkg.name}`, setup);
     total += setup;
   }
 

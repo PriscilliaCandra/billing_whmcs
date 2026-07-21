@@ -48,9 +48,9 @@ module.exports = function registerClient(router) {
     const body = `
     <div class="public-wrap">
       <div class="hero">
-        <h1>Harga SahabatAI</h1>
+        <h1>Harga OmsetAI</h1>
         <p>Pilih paket WhatsApp AI CRM sesuai skala bisnis Anda. Bayar per 3 bulan, 6 bulan, atau 1 tahun.</p>
-        <div class="note">🔒 Wajib punya akun SahabatAI dulu — daftar di <a href="https://ai.indotrading.com/" target="_blank" style="text-decoration:underline">ai.indotrading.com</a>, lalu order di sini.</div>
+        <div class="note">🔒 Wajib punya akun OmsetAI dulu — daftar di <a href="https://ai.indotrading.com/" target="_blank" style="text-decoration:underline">ai.indotrading.com</a>, lalu order di sini.</div>
         <div><div class="term-toggle" id="termToggle">
           ${TERMS.map((t) => `<button data-term="${t.n}" class="${t.n === 12 ? 'active' : ''}">${t.label}</button>`).join('')}
         </div></div>
@@ -101,7 +101,7 @@ module.exports = function registerClient(router) {
   });
   router.post('/register', async (ctx) => {
     const b = ctx.body;
-    if (!b.confirm_sahabat) { ctx.flash('error', 'Anda harus sudah memiliki akun SahabatAI terlebih dahulu.'); ctx.session._form = b; return ctx.redirect('/register'); }
+    if (!b.confirm_sahabat) { ctx.flash('error', 'Anda harus sudah memiliki akun OmsetAI terlebih dahulu.'); ctx.session._form = b; return ctx.redirect('/register'); }
     if (!b.first_name || !b.email || !b.password) { ctx.flash('error', 'Lengkapi nama, email, dan password.'); return ctx.redirect('/register'); }
     if (await get('SELECT id FROM clients WHERE email=?', b.email.trim())) { ctx.flash('error', 'Email sudah terdaftar. Silakan masuk.'); return ctx.redirect('/login'); }
     const res = await run(`INSERT INTO clients (first_name,last_name,email,password,company,phone,sahabatai_account,status,created_at)
@@ -272,19 +272,19 @@ module.exports = function registerClient(router) {
       <div class="auth-card">
         <div class="logo-lg">${LOGO_SVG}</div>
         <h2 style="text-align:center">Daftar Akun Billing</h2>
-        <div class="alert alert-info" style="font-size:.82rem">Wajib punya akun SahabatAI dulu. Belum punya? <a href="https://ai.indotrading.com/" target="_blank">Daftar di ai.indotrading.com</a> lalu kembali ke sini.</div>
+        <div class="alert alert-info" style="font-size:.82rem">Wajib punya akun OmsetAI dulu. Belum punya? <a href="https://ai.indotrading.com/" target="_blank">Daftar di ai.indotrading.com</a> lalu kembali ke sini.</div>
         <form method="post" action="/register">
           <div class="form-grid">
             <div class="form-row"><label class="lbl">Nama Depan</label><input name="first_name" value="${esc(f.first_name || '')}" required></div>
             <div class="form-row"><label class="lbl">Nama Belakang</label><input name="last_name" value="${esc(f.last_name || '')}"></div>
           </div>
-          <div class="form-row"><label class="lbl">Email (sama dengan akun SahabatAI)</label><input type="email" name="email" value="${esc(f.email || '')}" required></div>
+          <div class="form-row"><label class="lbl">Email (sama dengan akun OmsetAI)</label><input type="email" name="email" value="${esc(f.email || '')}" required></div>
           <div class="form-grid">
             <div class="form-row"><label class="lbl">Perusahaan</label><input name="company" value="${esc(f.company || '')}"></div>
             <div class="form-row"><label class="lbl">No. HP</label><input name="phone" value="${esc(f.phone || '')}"></div>
           </div>
           <div class="form-row"><label class="lbl">Password</label><input type="password" name="password" required></div>
-          <label class="opt-card" style="cursor:pointer"><input type="checkbox" name="confirm_sahabat"><div><div class="opt-title">Saya sudah punya akun SahabatAI</div><div class="muted" style="font-size:.78rem">Terdaftar di ai.indotrading.com</div></div></label>
+          <label class="opt-card" style="cursor:pointer"><input type="checkbox" name="confirm_sahabat"><div><div class="opt-title">Saya sudah punya akun OmsetAI</div><div class="muted" style="font-size:.78rem">Terdaftar di ai.indotrading.com</div></div></label>
           <button class="btn btn-block" type="submit" style="margin-top:.5rem">Daftar &amp; Lanjut</button>
         </form>
         <p style="text-align:center;margin-top:1rem">Sudah punya akun? <a href="/login">Masuk</a></p>
@@ -296,7 +296,7 @@ module.exports = function registerClient(router) {
       <div class="auth-card">
         <div class="logo-lg">${LOGO_SVG}</div>
         <h2 style="text-align:center">Masuk</h2>
-        <p class="muted" style="text-align:center;margin-top:0">Client Area SahabatAI Billing</p>
+        <p class="muted" style="text-align:center;margin-top:0">Client Area OmsetAI Billing</p>
         ${error ? `<div class="alert alert-error">${esc(error)}</div>` : ''}
         <form method="post" action="/login">
           <div class="form-row"><label class="lbl">Email</label><input type="email" name="email" required autofocus></div>
@@ -314,7 +314,7 @@ module.exports = function registerClient(router) {
     return `<div class="public-wrap">
       ${flashClient(ctx)}
       <a href="/" class="muted">← Semua paket</a>
-      <h1 style="margin-top:.5rem">Checkout — SahabatAI ${esc(pkg.name)}</h1>
+      <h1 style="margin-top:.5rem">Checkout — OmsetAI ${esc(pkg.name)}</h1>
       <form method="post" action="/order" id="checkoutForm"><div class="checkout-grid">
         <div>
           <div class="card"><div class="card-head"><h3>Pilih Periode</h3></div><div class="card-body">

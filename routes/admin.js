@@ -136,7 +136,7 @@ module.exports = function registerAdmin(router) {
       <td class="nowrap">${fmtDate(s.next_due_date)}</td></tr>`).join('');
 
     const body = `
-      <div class="page-head"><div><h1>Dashboard</h1><div class="sub">Ringkasan billing SahabatAI</div></div></div>
+      <div class="page-head"><div><h1>Dashboard</h1><div class="sub">Ringkasan billing OmsetAI</div></div></div>
 
       <div class="stats">
         <div class="stat-wh c-green"><div class="stat-ic">🛒</div><div><div class="stat-num">${pendingOrders}</div><div class="stat-lbl">Pending Orders</div></div></div>
@@ -287,7 +287,7 @@ module.exports = function registerAdmin(router) {
                   ${field('Email', 'email', c.email, { type: 'email', required: true })}
                   ${field('No. HP', 'phone', c.phone)}
                   ${field('Perusahaan', 'company', c.company)}
-                  ${field('Akun SahabatAI', 'sahabatai_account', c.sahabatai_account, { help: 'Email login di ai.indotrading.com' })}
+                  ${field('Akun OmsetAI', 'sahabatai_account', c.sahabatai_account, { help: 'Email login di ai.indotrading.com' })}
                   ${field('Kota', 'city', c.city)}
                   ${field('Negara', 'country', c.country)}
                 </div>
@@ -485,7 +485,7 @@ module.exports = function registerAdmin(router) {
       <div class="grid-2">
         <div class="card"><div class="card-body">
           <div style="display:flex;justify-content:space-between;margin-bottom:1.5rem">
-            <div><b style="font-size:1.1rem;color:var(--green-dark)">SahabatAI Billing</b><div class="muted">PT Indotrading</div></div>
+            <div><b style="font-size:1.1rem;color:var(--green-dark)">OmsetAI Billing</b><div class="muted">PT Indotrading</div></div>
             <div class="right"><div class="muted">Invoice</div><b>${esc(inv.invoice_num)}</b><div class="muted">Jatuh tempo ${fmtDate(inv.date_due)}</div></div>
           </div>
           <div style="margin-bottom:1rem"><div class="muted">Ditagihkan kepada:</div><b>${esc(c.first_name + ' ' + (c.last_name || ''))}</b><div>${esc(c.company || '')}</div><div class="muted">${esc(c.email)}</div></div>
@@ -575,7 +575,7 @@ module.exports = function registerAdmin(router) {
       <td>${badge(p.status)}</td>
       <td><a class="btn btn-ghost btn-sm" href="/admin/products/${p.id}">Edit</a></td></tr>`).join('');
     const body = `
-      <div class="page-head"><div><h1>Produk &amp; Harga</h1><div class="sub">Paket SahabatAI &amp; add-on. Harga per periode.</div></div></div>
+      <div class="page-head"><div><h1>Produk &amp; Harga</h1><div class="sub">Paket OmsetAI &amp; add-on. Harga per periode.</div></div></div>
       <div class="alert alert-info">Add-on <b>Training User (One to One)</b> ditagih sekali (one-time), tanpa setup fee. Setup fee paket hanya berlaku pada pembelian pertama.</div>
       ${tableCard('<th>Produk</th><th>Tipe</th><th class="num">Setup Fee</th><th class="num">3 Bulan</th><th class="num">6 Bulan</th><th class="num">1 Tahun</th><th>Status</th><th></th>', rows)}`;
     await page(ctx, { title: 'Produk', active: '/admin/products', crumb: '<b>Produk &amp; Harga</b>', body });
@@ -730,7 +730,7 @@ module.exports = function registerAdmin(router) {
           ${field('Password', 'password', '', { type: 'password', required: true })}
           ${field('Perusahaan', 'company', c.company)}
           ${field('No. HP', 'phone', c.phone)}
-          ${field('Akun SahabatAI', 'sahabatai_account', c.sahabatai_account, { help: 'Email login di ai.indotrading.com' })}
+          ${field('Akun OmsetAI', 'sahabatai_account', c.sahabatai_account, { help: 'Email login di ai.indotrading.com' })}
           ${field('Kota', 'city', c.city)}
         </div>
         ${field('Alamat', 'address', c.address, { textarea: true })}

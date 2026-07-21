@@ -122,7 +122,7 @@ async function topNavbar(active, admin) {
     </div>
   </div>
   <div class="wh-navbar">
-    <a href="/admin" class="wh-brand"><span class="logo">${LOGO_SVG}</span> SahabatAI</a>
+    <a href="/admin" class="wh-brand"><span class="logo">${LOGO_SVG}</span> OmsetAI</a>
     <nav class="wh-navitems">${items}</nav>
     <form class="wh-search" method="get" action="/admin/clients">
       <input type="text" name="q" placeholder="Cari klien…">
@@ -185,7 +185,7 @@ async function adminSidebar(admin) {
     <div class="side-box">
       <div class="side-head">System Information</div>
       <div class="side-body sys-info">
-        <div>Sistem: <b>SahabatAI Billing</b></div>
+        <div>Sistem: <b>OmsetAI Billing</b></div>
         <div>Versi: <b>1.0.0</b></div>
         <div>Total Klien: <b>${totalClients}</b></div>
         <div>Admin Aktif: <b>${totalAdmins}</b></div>
@@ -202,7 +202,7 @@ async function adminLayout({ title, active, admin, crumb, body, session }) {
   const initials = (admin.name || 'A').split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
   return `<!doctype html><html lang="id"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${esc(title)} · SahabatAI Billing</title>
+    <title>${esc(title)} · OmsetAI Billing</title>
     <link rel="stylesheet" href="/css/style.css">
   </head><body class="wh-body">
     <header class="wh-header">${await topNavbar(active, admin)}</header>
@@ -253,19 +253,19 @@ function trendChart(data, { width = 640, height = 200, valueFmt = rupiah } = {})
 function publicLayout({ title, body, client }) {
   const right = client
     ? `<a href="/clientarea">Halo, ${esc(client.first_name)}</a><a href="/clientarea" class="btn btn-outline btn-sm">Client Area</a><a href="/logout" class="btn btn-sm">Keluar</a>`
-    : `<a href="https://ai.indotrading.com/" target="_blank">Kembali ke SahabatAI</a><a href="/login" class="btn btn-outline btn-sm">Masuk</a><a href="/register" class="btn btn-sm">Daftar</a>`;
+    : `<a href="https://ai.indotrading.com/" target="_blank">Kembali ke OmsetAI</a><a href="/login" class="btn btn-outline btn-sm">Masuk</a><a href="/register" class="btn btn-sm">Daftar</a>`;
   return `<!doctype html><html lang="id"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${esc(title)} · SahabatAI Billing</title>
+    <title>${esc(title)} · OmsetAI Billing</title>
     <link rel="stylesheet" href="/css/style.css">
   </head><body>
     <nav class="public-nav"><div class="inner">
-      <a href="/" class="brand"><span class="logo">${LOGO_SVG}</span> SahabatAI <span style="font-weight:500;color:#6b7a72;font-size:.8rem;">Billing</span></a>
+      <a href="/" class="brand"><span class="logo">${LOGO_SVG}</span> OmsetAI <span style="font-weight:500;color:#6b7a72;font-size:.8rem;">Billing</span></a>
       <div class="links">${right}</div>
     </div></nav>
     ${body}
     <footer style="text-align:center;padding:2rem;color:#6b7a72;font-size:.8rem;border-top:1px solid var(--line);background:#fff;">
-      © ${new Date().getFullYear()} SahabatAI — PT Indotrading. Portal Billing &amp; Order.
+      © ${new Date().getFullYear()} OmsetAI — PT Indotrading. Portal Billing &amp; Order.
     </footer>
   </body></html>`;
 }
