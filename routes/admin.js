@@ -287,7 +287,7 @@ module.exports = function registerAdmin(router) {
                   ${field('Email', 'email', c.email, { type: 'email', required: true })}
                   ${field('No. HP', 'phone', c.phone)}
                   ${field('Perusahaan', 'company', c.company)}
-                  ${field('Akun OmsetAI', 'sahabatai_account', c.sahabatai_account, { help: 'Email login di ai.indotrading.com' })}
+                  ${field('Akun OmsetAI', 'sahabatai_account', c.sahabatai_account, { help: 'Email login di omset.ai' })}
                   ${field('Kota', 'city', c.city)}
                   ${field('Negara', 'country', c.country)}
                 </div>
@@ -730,7 +730,7 @@ module.exports = function registerAdmin(router) {
           ${field('Password', 'password', '', { type: 'password', required: true })}
           ${field('Perusahaan', 'company', c.company)}
           ${field('No. HP', 'phone', c.phone)}
-          ${field('Akun OmsetAI', 'sahabatai_account', c.sahabatai_account, { help: 'Email login di ai.indotrading.com' })}
+          ${field('Akun OmsetAI', 'sahabatai_account', c.sahabatai_account, { help: 'Email login di omset.ai' })}
           ${field('Kota', 'city', c.city)}
         </div>
         ${field('Alamat', 'address', c.address, { textarea: true })}

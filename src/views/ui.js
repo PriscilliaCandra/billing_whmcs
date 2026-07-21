@@ -271,7 +271,7 @@ function trendChart(data, { width = 640, height = 200, valueFmt = rupiah } = {})
 function publicLayout({ title, body, client }) {
   const right = client
     ? `<a href="/clientarea">Halo, ${esc(client.first_name)}</a><a href="/clientarea" class="btn btn-outline btn-sm">Client Area</a><a href="/logout" class="btn btn-sm">Keluar</a>`
-    : `<a href="https://ai.indotrading.com/" target="_blank">Kembali ke OmsetAI</a><a href="/login" class="btn btn-outline btn-sm">Masuk</a><a href="/register" class="btn btn-sm">Daftar</a>`;
+    : `<a href="https://omset.ai/" target="_blank">Kembali ke OmsetAI</a><a href="/login" class="btn btn-outline btn-sm">Masuk</a><a href="/register" class="btn btn-sm">Daftar</a>`;
   return `<!doctype html><html lang="id"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${esc(title)} · OmsetAI Billing</title>

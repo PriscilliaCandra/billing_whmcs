@@ -50,7 +50,7 @@ module.exports = function registerClient(router) {
       <div class="hero">
         <h1>Harga OmsetAI</h1>
         <p>Pilih paket WhatsApp AI CRM sesuai skala bisnis Anda. Bayar per 3 bulan, 6 bulan, atau 1 tahun.</p>
-        <div class="note" style="display:flex;align-items:center;gap:.4rem">${ICON.lock(14)} Wajib punya akun OmsetAI dulu — daftar di <a href="https://ai.indotrading.com/" target="_blank" style="text-decoration:underline">ai.indotrading.com</a>, lalu order di sini.</div>
+        <div class="note" style="display:flex;align-items:center;gap:.4rem">${ICON.lock(14)} Wajib punya akun OmsetAI dulu — daftar di <a href="https://omset.ai/" target="_blank" style="text-decoration:underline">omset.ai</a>, lalu order di sini.</div>
         <div><div class="term-toggle" id="termToggle">
           ${TERMS.map((t) => `<button data-term="${t.n}" class="${t.n === 12 ? 'active' : ''}">${t.label}</button>`).join('')}
         </div></div>
@@ -272,7 +272,7 @@ module.exports = function registerClient(router) {
       <div class="auth-card">
         <div class="logo-lg">${LOGO_SVG}</div>
         <h2 style="text-align:center">Daftar Akun Billing</h2>
-        <div class="alert alert-info" style="font-size:.82rem">Wajib punya akun OmsetAI dulu. Belum punya? <a href="https://ai.indotrading.com/" target="_blank">Daftar di ai.indotrading.com</a> lalu kembali ke sini.</div>
+        <div class="alert alert-info" style="font-size:.82rem">Wajib punya akun OmsetAI dulu. Belum punya? <a href="https://omset.ai/" target="_blank">Daftar di omset.ai</a> lalu kembali ke sini.</div>
         <form method="post" action="/register">
           <div class="form-grid">
             <div class="form-row"><label class="lbl">Nama Depan</label><input name="first_name" value="${esc(f.first_name || '')}" required></div>
@@ -284,7 +284,7 @@ module.exports = function registerClient(router) {
             <div class="form-row"><label class="lbl">No. HP</label><input name="phone" value="${esc(f.phone || '')}"></div>
           </div>
           <div class="form-row"><label class="lbl">Password</label><input type="password" name="password" required></div>
-          <label class="opt-card" style="cursor:pointer"><input type="checkbox" name="confirm_sahabat"><div><div class="opt-title">Saya sudah punya akun OmsetAI</div><div class="muted" style="font-size:.78rem">Terdaftar di ai.indotrading.com</div></div></label>
+          <label class="opt-card" style="cursor:pointer"><input type="checkbox" name="confirm_sahabat"><div><div class="opt-title">Saya sudah punya akun OmsetAI</div><div class="muted" style="font-size:.78rem">Terdaftar di omset.ai</div></div></label>
           <button class="btn btn-block" type="submit" style="margin-top:.5rem">Daftar &amp; Lanjut</button>
         </form>
         <p style="text-align:center;margin-top:1rem">Sudah punya akun? <a href="/login">Masuk</a></p>
