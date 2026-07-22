@@ -2,15 +2,11 @@
 // Public storefront + client area routes.
 const { get, all, run } = require('../src/db');
 const { publicLayout, esc, badge, rupiah, fmtDate, LOGO_SVG, ICON } = require('../src/views/ui');
-const { authenticateClient, getClientById } = require('../src/services/auth');
+const { getClientById } = require('../src/services/auth');
 const { hashPassword, randomId } = require('../src/lib/crypto');
 const { verifyJwtHs256 } = require('../src/lib/jwtVerify'); // === SSO BILLING ===
 const { createOrder, markInvoicePaid, renewService, isFirstPurchase, termPrice, TERM_LABELS } = require('../src/services/orders');
 const { nowISO } = require('../src/lib/format');
-
-// Demo credential hints only render when explicitly enabled — keep them off by
-// default so a production/public deployment never displays login credentials.
-const SHOW_DEMO_HINTS = process.env.SHOW_DEMO_HINTS === 'true';
 
 async function requireClient(ctx) {
   if (!ctx.session.clientId) {
@@ -115,18 +111,16 @@ module.exports = function registerClient(router) {
     ctx.session.afterLogin = null;
   });
 
+  // === FLOW LOGIN BARU === form login manual (email/password) di sini SUDAH
+  // TIDAK DIPAKAI SAMA SEKALI — satu-satunya jalan masuk sekarang lewat SSO
+  // dari OmsetAI (owner klik "Kelola Langganan" di app, /sso di bawah yang
+  // memprosesnya). /login jadi murni redirect ke https://omset.ai/ (tempat
+  // popup "Masuk" OmsetAI yang sebenarnya) — dipertahankan sebagai ROUTE
+  // (bukan dihapus total) karena masih jadi tujuan requireClient() saat sesi
+  // habis & SSO gagal (lihat di bawah); TIDAK render form apa pun lagi.
   router.get('/login', (ctx) => {
     if (ctx.session.clientId) return ctx.redirect('/clientarea');
-    ctx.html(publicLayout({ title: 'Masuk', body: loginForm(ctx, ''), client: null }));
-  });
-  router.post('/login', async (ctx) => {
-    const client = await authenticateClient((ctx.body.email || '').trim(), ctx.body.password || '');
-    if (!client) return ctx.html(publicLayout({ title: 'Masuk', body: loginForm(ctx, 'Email atau password salah.'), client: null }));
-    if (client.status !== 'Active') return ctx.html(publicLayout({ title: 'Masuk', body: loginForm(ctx, 'Akun tidak aktif. Hubungi admin.'), client: null }));
-    ctx.session.clientId = client.id;
-    const next = ctx.session.afterLogin || '/clientarea';
-    ctx.session.afterLogin = null;
-    ctx.redirect(next);
+    ctx.redirect('https://omset.ai/');
   });
   // === FLOW LOGOUT BARU === sebelumnya /logout langsung redirect ke storefront
   // (`/`), yang ujung-ujungnya kalau user mau masuk lagi mendarat di form login
@@ -333,7 +327,7 @@ module.exports = function registerClient(router) {
           <label class="opt-card" style="cursor:pointer"><input type="checkbox" name="confirm_sahabat"><div><div class="opt-title">Saya sudah punya akun OmsetAI</div><div class="muted" style="font-size:.78rem">Terdaftar di omset.ai</div></div></label>
           <button class="btn btn-block" type="submit" style="margin-top:.5rem">Daftar &amp; Lanjut</button>
         </form>
-        <p style="text-align:center;margin-top:1rem">Sudah punya akun? <a href="/login">Masuk</a></p>
+        <p style="text-align:center;margin-top:1rem">Sudah punya akun? <a href="https://omset.ai/">Masuk lewat OmsetAI</a></p>
       </div></div>`;
   }
   // === FLOW LOGOUT BARU === dua pilihan tujuan setelah keluar; kartu OmsetAI
@@ -347,23 +341,6 @@ module.exports = function registerClient(router) {
         <p class="muted" style="margin-top:-.4rem">Mau ke mana selanjutnya?</p>
         <a href="https://omset.ai/" class="btn btn-block" style="margin-top:1.2rem">Buka OmsetAI</a>
         <a href="/" class="btn btn-outline btn-block" style="margin-top:.6rem">Lihat Harga Billing</a>
-      </div></div>`;
-  }
-  function loginForm(ctx, error) {
-    return `<div class="center-narrow">
-      ${flashClient(ctx)}
-      <div class="auth-card">
-        <div class="logo-lg">${LOGO_SVG}</div>
-        <h2 style="text-align:center">Masuk</h2>
-        <p class="muted" style="text-align:center;margin-top:0">Client Area OmsetAI Billing</p>
-        ${error ? `<div class="alert alert-error">${esc(error)}</div>` : ''}
-        <form method="post" action="/login">
-          <div class="form-row"><label class="lbl">Email</label><input type="email" name="email" required autofocus></div>
-          <div class="form-row"><label class="lbl">Password</label><input type="password" name="password" required></div>
-          <button class="btn btn-block" type="submit">Masuk</button>
-        </form>
-        ${SHOW_DEMO_HINTS ? '<p class="muted" style="text-align:center;font-size:.78rem;margin-top:1rem">Demo: <b>demo@client.com</b> / <b>demo123</b></p>' : ''}
-        <p style="text-align:center;margin-top:.5rem">Belum punya akun? <a href="/register">Daftar</a></p>
       </div></div>`;
   }
   function checkoutForm(ctx, pkg, term, addon, first) {
