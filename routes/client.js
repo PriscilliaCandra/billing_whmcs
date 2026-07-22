@@ -129,7 +129,31 @@ module.exports = function registerClient(router) {
   // halaman pilihan singkat: lihat harga (storefront billing) atau balik ke
   // OmsetAI. Link ke OmsetAI SELALU https://omset.ai/ — JANGAN pernah
   // ai.indotrading.com (domain lama, sudah tidak dipakai).
-  router.get('/logout', (ctx) => { ctx.session.clientId = null; ctx.redirect('/bye'); });
+  router.get('/logout', async (ctx) => {
+    // === REVOKASI SESI LINTAS-DOMAIN === sebelum membuang sesi billing, beri tahu
+    // sahabatai-backend (server-to-server, header rahasia bersama) supaya sesi OmsetAI
+    // milik user yang sama juga ikut invalid pada request authed berikutnya — memperbaiki
+    // bug: logout di sini dulu HANYA membersihkan cookie billing, localStorage/JWT OmsetAI
+    // tak tersentuh sama sekali. Best-effort: gagal (backend down/secret belum di-set/dll)
+    // TIDAK PERNAH menggagalkan logout billing itu sendiri (di luar try/catch = tak dieksekusi
+    // kalau gagal ambil client, tapi request revoke sendiri dibungkus try/catch di bawah).
+    try {
+      const client = ctx.session.clientId ? await getClientById(ctx.session.clientId) : null;
+      const secret = process.env.WHMCS_INTERNAL_SECRET;
+      const apiBase = process.env.SAHABATAI_API_BASE;
+      if (client?.sahabatai_account && secret && apiBase) {
+        await fetch(`${apiBase}/api/auth/revoke-session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Internal-Secret': secret },
+          body: JSON.stringify({ email: client.sahabatai_account }),
+        });
+      }
+    } catch (err) {
+      console.warn('[logout] gagal memanggil revoke-session OmsetAI (diabaikan, logout billing tetap jalan):', err.message);
+    }
+    ctx.session.clientId = null;
+    ctx.redirect('/bye');
+  });
   router.get('/bye', (ctx) => {
     ctx.html(publicLayout({ title: 'Sampai Jumpa', body: byePage(), client: null }));
   });
