@@ -128,7 +128,17 @@ module.exports = function registerClient(router) {
     ctx.session.afterLogin = null;
     ctx.redirect(next);
   });
-  router.get('/logout', (ctx) => { ctx.session.clientId = null; ctx.redirect('/'); });
+  // === FLOW LOGOUT BARU === sebelumnya /logout langsung redirect ke storefront
+  // (`/`), yang ujung-ujungnya kalau user mau masuk lagi mendarat di form login
+  // manual (loginForm) — padahal alur yang benar sekarang: masuk lewat OmsetAI
+  // (SSO), bukan isi email/password di sini lagi. Sekarang /logout tampilkan
+  // halaman pilihan singkat: lihat harga (storefront billing) atau balik ke
+  // OmsetAI. Link ke OmsetAI SELALU https://omset.ai/ — JANGAN pernah
+  // ai.indotrading.com (domain lama, sudah tidak dipakai).
+  router.get('/logout', (ctx) => { ctx.session.clientId = null; ctx.redirect('/bye'); });
+  router.get('/bye', (ctx) => {
+    ctx.html(publicLayout({ title: 'Sampai Jumpa', body: byePage(), client: null }));
+  });
 
   // ===================== SSO (dari OmsetAI, TANPA register ulang) =====================
   // === SSO BILLING === owner klik "Kelola Langganan" di dalam OmsetAI → dilempar ke sini
@@ -324,6 +334,19 @@ module.exports = function registerClient(router) {
           <button class="btn btn-block" type="submit" style="margin-top:.5rem">Daftar &amp; Lanjut</button>
         </form>
         <p style="text-align:center;margin-top:1rem">Sudah punya akun? <a href="/login">Masuk</a></p>
+      </div></div>`;
+  }
+  // === FLOW LOGOUT BARU === dua pilihan tujuan setelah keluar; kartu OmsetAI
+  // ditonjolkan (btn solid) karena itu jalur utama (login lewat SSO), storefront
+  // billing jadi opsi sekunder (btn outline) buat yang cuma mau lihat harga.
+  function byePage() {
+    return `<div class="center-narrow">
+      <div class="auth-card" style="text-align:center">
+        <div class="logo-lg">${LOGO_SVG}</div>
+        <h2>Anda telah keluar</h2>
+        <p class="muted" style="margin-top:-.4rem">Mau ke mana selanjutnya?</p>
+        <a href="https://omset.ai/" class="btn btn-block" style="margin-top:1.2rem">Buka OmsetAI</a>
+        <a href="/" class="btn btn-outline btn-block" style="margin-top:.6rem">Lihat Harga Billing</a>
       </div></div>`;
   }
   function loginForm(ctx, error) {
