@@ -1,6 +1,6 @@
 'use strict';
 // Standalone admin login page (split-screen, no sidebar).
-const { esc, LOGO_SVG } = require('./ui');
+const { esc, brandMark } = require('./ui');
 
 // Demo credential hints only render when explicitly enabled — keep them off by
 // default so a production/public deployment never displays login credentials.
@@ -15,8 +15,8 @@ function LOGIN_PAGE({ error, username }) {
   <div class="login-split">
     <div class="left">
       <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:1.5rem">
-        <span style="width:44px;height:44px;border-radius:12px;background:var(--green);display:grid;place-items:center;color:#fff">${LOGO_SVG}</span>
-        <b style="font-size:1.4rem">OmsetAI Billing</b>
+        ${brandMark({ size: 44, textSize: '1.4rem', textColor: '#fff', weight: 700 })}
+        <b style="font-size:1.4rem;margin-left:-.15rem">Billing</b>
       </div>
       <h2>Panel Administrasi</h2>
       <p>Kelola klien, order, invoice, produk, dan tim admin OmsetAI dalam satu tempat — mirip WHMCS.</p>
@@ -29,7 +29,7 @@ function LOGIN_PAGE({ error, username }) {
     </div>
     <div class="right">
       <div class="auth-card" style="width:100%;max-width:380px">
-        <div class="logo-lg">${LOGO_SVG}</div>
+        <div style="display:flex;justify-content:center;margin-bottom:1rem">${brandMark({ size: 40, textSize: '1.15rem' })}</div>
         <h2 style="text-align:center;margin-bottom:.25rem">Masuk Admin</h2>
         <p class="muted" style="text-align:center;margin-top:0">Gunakan akun administrator Anda</p>
         ${error ? `<div class="alert alert-error">${esc(error)}</div>` : ''}

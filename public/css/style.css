@@ -1,22 +1,23 @@
-/* ===== SahabatAI Billing — theme follows ai.indotrading.com (green) ===== */
+/* ===== SahabatAI Billing — rebrand to OmsetAI canonical tokens (theme.js / Landing.jsx) ===== */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap');
 :root {
-  --green: #16a06a;
-  --green-600: #12885a;
-  --green-700: #0e6f49;
-  --green-dark: #0d2b1e;      /* dark card / sidebar */
-  --green-darker: #0a2016;
-  --mint-bg: #eef4f0;
-  --mint-100: #e2efe9;
-  --line: #e4ebe7;
-  --text: #0f1f18;
-  --muted: #6b7a72;
+  --green: #0F8B5F;           /* accent */
+  --green-600: #0c7350;       /* accent hover/darker */
+  --green-700: #0a5e42;       /* accent, darkest (on-light text) */
+  --green-dark: #0E2620;      /* ink — dark card / sidebar */
+  --green-darker: #081812;    /* ink, darkest utility strip */
+  --mint-bg: #f5faf7;         /* landing bg */
+  --mint-100: #E4F3EC;        /* accentSoft */
+  --line: #E5DDD0;
+  --text: #1C2B26;
+  --muted: #667670;
   --white: #ffffff;
-  --danger: #d64545;
-  --warn: #e0a324;
-  --info: #2f7dbb;
+  --danger: #DC2626;
+  --warn: #B45309;
+  --info: #1D4ED8;
   --radius: 12px;
-  --shadow: 0 1px 3px rgba(13, 43, 30, .08), 0 1px 2px rgba(13, 43, 30, .05);
-  --font: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  --shadow: 0 1px 3px rgba(14, 38, 32, .08), 0 1px 2px rgba(14, 38, 32, .05);
+  --font: 'DM Sans', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -83,7 +84,7 @@ input[type=text], input[type=email], input[type=password], input[type=number], s
   width: 100%; padding: .6rem .7rem; border: 1px solid #d4ddd8; border-radius: 9px;
   font-family: inherit; font-size: .9rem; background: #fff; color: var(--text);
 }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(22,160,106,.15); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(15,139,95,.15); }
 textarea { min-height: 90px; resize: vertical; }
 .help { color: var(--muted); font-size: .78rem; margin-top: .3rem; }
 
@@ -241,7 +242,7 @@ a.wh-nav-link { text-decoration: none; }
 .summary .line { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px dashed var(--line); font-size: .9rem; }
 .summary .line.total { border-bottom: none; font-weight: 800; font-size: 1.1rem; padding-top: .8rem; }
 .opt-card { border: 1px solid var(--line); border-radius: 11px; padding: 1rem; margin-bottom: .8rem; cursor: pointer; display: flex; gap: .8rem; align-items: flex-start; }
-.opt-card.selected { border-color: var(--green); background: #f3faf6; box-shadow: 0 0 0 2px rgba(22,160,106,.15); }
+.opt-card.selected { border-color: var(--green); background: #f3faf6; box-shadow: 0 0 0 2px rgba(15,139,95,.15); }
 .opt-card input { width: auto; margin-top: .25rem; }
 .opt-card .opt-title { font-weight: 700; }
 .opt-card .opt-price { margin-left: auto; font-weight: 700; color: var(--green-700); }

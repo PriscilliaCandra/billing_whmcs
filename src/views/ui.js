@@ -13,6 +13,19 @@ function esc(s) {
 // Inline SVG logo mark used across public + admin.
 const LOGO_SVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.5 2 2 5.9 2 10.7c0 2.7 1.4 5.1 3.6 6.7L4.8 22l4.4-2.3c.9.2 1.8.3 2.8.3 5.5 0 10-3.9 10-8.7S17.5 2 12 2Z" fill="currentColor"/></svg>`;
 
+// === REBRAND: wordmark lockup === mirror the app sidebar / landing page lockup:
+// small accent-colored rounded-square icon (chat bubble) + "Omset" in ink/white
+// + bold "AI" in accent color. Used anywhere the app previously printed a plain
+// "OmsetAI" brand string.
+const BRAND_ICON_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>`;
+function brandMark({ size = 28, textSize = '1.05rem', textColor = 'inherit', weight = 800 } = {}) {
+  return `<span style="display:inline-flex;align-items:center;gap:.5rem;">` +
+    `<span style="width:${size}px;height:${size}px;border-radius:8px;background:var(--green);display:inline-flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">${BRAND_ICON_SVG}</span>` +
+    `<span style="font-weight:${weight};font-size:${textSize};color:${textColor};">Omset<span style="color:var(--green);">AI</span></span>` +
+    `</span>`;
+}
+const BRAND_MARK = brandMark();
+
 // === REBRAND: hapus emoji/icon berwarna === set ikon garis monokrom (stroke=
 // currentColor, gaya sama seperti LOGO_SVG) menggantikan emoji pictograph
 // (🛒🧾📄👤🔒⏰✓↻) di seluruh app — supaya tampilan konsisten profesional,
@@ -140,7 +153,7 @@ async function topNavbar(active, admin) {
     </div>
   </div>
   <div class="wh-navbar">
-    <a href="/admin" class="wh-brand"><span class="logo">${LOGO_SVG}</span> OmsetAI</a>
+    <a href="/admin" class="wh-brand">${brandMark({ size: 26, textSize: '1.05rem', textColor: '#fff' })}</a>
     <nav class="wh-navitems">${items}</nav>
     <form class="wh-search" method="get" action="/admin/clients">
       <input type="text" name="q" placeholder="Cari klien…">
@@ -259,7 +272,7 @@ function trendChart(data, { width = 640, height = 200, valueFmt = rupiah } = {})
     const y = padT + chartH - h;
     const showLabel = n <= 14 || i % Math.ceil(n / 10) === 0;
     return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(1, h).toFixed(1)}" rx="3" fill="var(--green)"><title>${esc(d.label)}: ${esc(valueFmt(d.value))}</title></rect>
-      ${showLabel ? `<text x="${(x + barW / 2).toFixed(1)}" y="${height - 8}" font-size="9" fill="#6b7a72" text-anchor="middle">${esc(d.shortLabel || d.label)}</text>` : ''}`;
+      ${showLabel ? `<text x="${(x + barW / 2).toFixed(1)}" y="${height - 8}" font-size="9" fill="#667670" text-anchor="middle">${esc(d.shortLabel || d.label)}</text>` : ''}`;
   }).join('');
   return `<svg viewBox="0 0 ${width} ${height}" width="100%" height="${height}" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
     <line x1="${padL}" y1="${padT + chartH}" x2="${width - padR}" y2="${padT + chartH}" stroke="#e4ebe7"/>
@@ -280,11 +293,11 @@ function publicLayout({ title, body, client }) {
     <link rel="stylesheet" href="/css/style.css">
   </head><body>
     <nav class="public-nav"><div class="inner">
-      <a href="/" class="brand"><span class="logo">${LOGO_SVG}</span> OmsetAI <span style="font-weight:500;color:#6b7a72;font-size:.8rem;">Billing</span></a>
+      <a href="/" class="brand">${BRAND_MARK} <span style="font-weight:500;color:#667670;font-size:.8rem;">Billing</span></a>
       <div class="links">${right}</div>
     </div></nav>
     ${body}
-    <footer style="text-align:center;padding:2rem;color:#6b7a72;font-size:.8rem;border-top:1px solid var(--line);background:#fff;">
+    <footer style="text-align:center;padding:2rem;color:#667670;font-size:.8rem;border-top:1px solid var(--line);background:#fff;">
       © ${new Date().getFullYear()} OmsetAI — PT Indotrading. Portal Billing &amp; Order.
     </footer>
   </body></html>`;
@@ -300,4 +313,4 @@ function pager(baseUrl, page, totalPages, extra = '') {
   return html + '</div>';
 }
 
-module.exports = { esc, badge, flash, adminLayout, publicLayout, LOGO_SVG, ICON, rupiah, fmtDate, fmtDateTime, pager, trendChart };
+module.exports = { esc, badge, flash, adminLayout, publicLayout, LOGO_SVG, BRAND_MARK, brandMark, ICON, rupiah, fmtDate, fmtDateTime, pager, trendChart };
