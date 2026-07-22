@@ -2,6 +2,10 @@
 // SahabatAI Billing — Node server (node:http + MySQL/mysql2).
 const http = require('node:http');
 const path = require('node:path');
+// === FIX GAP KONFIGURASI === muat .env SEBELUM modul lain (mis. db.js) baca
+// process.env — sebelumnya server ini tak pernah memuat .env sama sekali (lihat
+// src/lib/loadEnv.js). WAJIB baris pertama setelah require inti node.
+require('./src/lib/loadEnv').loadEnvFile();
 const { get, run } = require('./src/db');
 const { ensureSchema, seed } = require('./src/schema');
 const { parseCookies, parseBody, serveStatic } = require('./src/lib/http');
