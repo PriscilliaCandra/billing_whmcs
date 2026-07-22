@@ -43,6 +43,7 @@ async function saveSession(sid, data) {
 const router = new Router();
 require('./routes/admin')(router);
 require('./routes/client')(router);
+require('./routes/api')(router); // === API SINKRON INVOICE (dari OmsetAI CRM) ===
 
 // --- Request context ---
 function makeCtx(req, res, params) {

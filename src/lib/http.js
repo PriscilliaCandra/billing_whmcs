@@ -16,10 +16,13 @@ function parseCookies(req) {
   return out;
 }
 
-// Parse application/x-www-form-urlencoded bodies. Supports repeated keys and key[] arrays.
+// Parse application/x-www-form-urlencoded (storefront/admin forms) ATAU
+// application/json (dipakai API server-to-server, mis. sinkron invoice CRM →
+// Billing) bodies. Repeated keys dan key[] arrays tetap didukung utk urlencoded.
 function parseBody(req) {
   return new Promise((resolve) => {
     if (req.method !== 'POST' && req.method !== 'PUT') return resolve({});
+    const isJson = (req.headers['content-type'] || '').includes('application/json');
     let data = '';
     let tooBig = false;
     req.on('data', (chunk) => {
@@ -31,6 +34,10 @@ function parseBody(req) {
     });
     req.on('end', () => {
       if (tooBig) return resolve({});
+      if (isJson) {
+        try { return resolve(data ? JSON.parse(data) : {}); }
+        catch { return resolve({}); }
+      }
       resolve(parseUrlEncoded(data));
     });
     req.on('error', () => resolve({}));
