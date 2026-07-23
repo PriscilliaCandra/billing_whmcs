@@ -6,31 +6,30 @@ dibuat mirip WHMCS. Tema mengikuti warna hijau SahabatAI.
 > Mau merge/deploy ini supaya nyambung ke domain **ai.indotrading.com**? Lihat **[HANDOFF.md](HANDOFF.md)**
 > untuk panduan integrasi (subdomain vs subpath, reverse proxy, checklist keamanan sebelum go-live).
 
-Dibangun dengan Node.js (`node:http`, `node:crypto`) + **MySQL** via
-[`mysql2`](https://www.npmjs.com/package/mysql2). Database berada di server MySQL
-yang **sama** dengan SahabatAI, tetapi pada **database terpisah** bernama `billing`
-(tidak bercampur dengan database `sahabatai`).
+Dibangun dengan Node.js (`node:http`, `node:crypto`) + **PostgreSQL** via
+[`pg`](https://www.npmjs.com/package/pg) (node-postgres). Database SENGAJA **terpisah**
+dari database `sahabatai` — instans/DB sendiri, jangan dicampur.
 
 ## Menjalankan
 
-Butuh **Node.js versi 18 ke atas** dan **MySQL** (mis. Laragon di lokal).
+Butuh **Node.js versi 18 ke atas** dan **PostgreSQL** (lokal atau managed cloud).
 
 1. **Install dependency** (sekali):
    ```bash
    npm install
    ```
-2. **Buat database** `billing` (sekali) — di server MySQL yang sama dengan SahabatAI:
+2. **Buat database** (sekali) — nama bebas, cocokkan ke `PG_DATABASE` di `.env`:
    ```sql
-   CREATE DATABASE billing CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+   CREATE DATABASE billing_whmcs;
    ```
-3. **Konfigurasi koneksi** — salin `.env.example` menjadi `.env` lalu sesuaikan bila
-   kredensial MySQL Anda berbeda dari default Laragon (`root` tanpa password):
+3. **Konfigurasi koneksi** — salin `.env.example` menjadi `.env` lalu isi `PG_HOST`,
+   `PG_PORT`, `PG_USER`, `PG_PASSWORD`, `PG_DATABASE`, `PG_SSL`:
    ```bash
    cp .env.example .env
    ```
-   > Catatan: server tidak memuat `.env` secara otomatis (tanpa `dotenv`). Nilai dibaca
-   > dari environment. Di lokal, default in-code sudah cocok Laragon. Untuk produksi,
-   > set variabel `BILLING_DB_*` di environment proses (systemd/pm2/panel hosting).
+   > Catatan: server tidak memuat `.env` secara otomatis (tanpa `dotenv`) — loader manual
+   > `src/lib/loadEnv.js` yang membacanya ke `process.env` saat boot. Untuk produksi, boleh
+   > juga set langsung di environment proses (systemd/pm2/panel hosting), tanpa file `.env`.
 4. **Isi tabel + data demo** (sekali):
    ```bash
    npm run seed
@@ -132,8 +131,8 @@ routes/
   admin.js             Semua route admin panel
   client.js            Storefront + client area
 src/
-  db.js                Koneksi MySQL (pool mysql2/promise) + helper get/run/all
-  schema.js            Skema tabel (MySQL) + seed data
+  db.js                Koneksi PostgreSQL (pool pg) + helper get/run/all
+  schema.js            Skema tabel (PostgreSQL) + seed data
   services/
     orders.js          Logika order, invoice, setup fee, renewal
     auth.js            Autentikasi admin & klien, cek permission
@@ -142,7 +141,7 @@ src/
     ui.js              Layout admin + storefront + komponen
     adminAuth.js       Halaman login admin
 public/css/style.css   Tema hijau SahabatAI
-.env.example           Contoh konfigurasi (koneksi MySQL, PORT, TRUST_PROXY)
+.env.example           Contoh konfigurasi (koneksi PostgreSQL, PORT, TRUST_PROXY)
 tools/cloudflared.exe  Binary tunnel untuk akses publik (lihat bagian Akses)
 tools/start-tunnel.bat Shortcut untuk membuka tunnel publik baru
 ```

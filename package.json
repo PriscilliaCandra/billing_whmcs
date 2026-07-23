@@ -1,7 +1,7 @@
 {
   "name": "whmcs-sahabat-ai",
   "version": "1.0.0",
-  "description": "WHMCS-style admin + billing dashboard for Sahabat AI (zero external dependencies)",
+  "description": "WHMCS-style admin + billing dashboard for Sahabat AI (PostgreSQL-backed)",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
@@ -13,6 +13,6 @@
     "node": ">=22"
   },
   "dependencies": {
-    "mysql2": "^3.22.5"
+    "pg": "^8.22.0"
   }
 }

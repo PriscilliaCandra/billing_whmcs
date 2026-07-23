@@ -1,6 +1,6 @@
 'use strict';
 // Core billing logic shared by the storefront, client area, and admin.
-// (MySQL / mysql2 — async: get/run/all mengembalikan Promise, wajib di-await.)
+// (PostgreSQL / pg — async: get/run/all mengembalikan Promise, wajib di-await.)
 const { db, run, get, all } = require('../db');
 const { todayISO, nowISO, addMonthsISO } = require('../lib/format');
 

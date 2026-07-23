@@ -1,5 +1,5 @@
 'use strict';
-// SahabatAI Billing — Node server (node:http + MySQL/mysql2).
+// SahabatAI Billing — Node server (node:http + PostgreSQL/pg).
 const http = require('node:http');
 const path = require('node:path');
 // === FIX GAP KONFIGURASI === muat .env SEBELUM modul lain (mis. db.js) baca
@@ -17,7 +17,7 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 const SESSION_COOKIE = 'sbsid';
 const SESSION_TTL = 1000 * 60 * 60 * 24 * 7; // 7 days
 
-// --- Session store (MySQL-backed) — async ---
+// --- Session store (PostgreSQL-backed) — async ---
 async function loadSession(sid) {
   if (!sid) return null;
   const row = await get('SELECT data, expires FROM sessions WHERE sid = ?', sid);
@@ -31,10 +31,10 @@ async function loadSession(sid) {
 async function saveSession(sid, data) {
   const expires = Date.now() + SESSION_TTL;
   const json = JSON.stringify(data || {});
-  // MySQL upsert (pengganti SQLite "ON CONFLICT ... DO UPDATE SET ... excluded.x").
+  // PostgreSQL upsert.
   await run(
     `INSERT INTO sessions (sid, data, expires) VALUES (?,?,?)
-     ON DUPLICATE KEY UPDATE data = VALUES(data), expires = VALUES(expires)`,
+     ON CONFLICT (sid) DO UPDATE SET data = EXCLUDED.data, expires = EXCLUDED.expires`,
     sid, json, expires
   );
 }

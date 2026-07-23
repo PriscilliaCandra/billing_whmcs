@@ -87,7 +87,7 @@ module.exports = function registerAdmin(router) {
     const pendingOrders = (await get("SELECT COUNT(*) c FROM orders WHERE status='Pending'")).c;
     const unpaid = await get("SELECT COUNT(*) c, COALESCE(SUM(total),0) s FROM invoices WHERE status='Unpaid'");
     const expiringSoon = (await get(`SELECT COUNT(*) c FROM services WHERE status='Active' AND type='package'
-        AND next_due_date IS NOT NULL AND next_due_date <= CURDATE() + INTERVAL 7 DAY`)).c;
+        AND next_due_date IS NOT NULL AND next_due_date::date <= CURRENT_DATE + INTERVAL '7 days'`)).c;
     const newClients = (await get('SELECT COUNT(*) c FROM clients WHERE created_at >= ?', monthStart)).c;
 
     const revenue = (await get("SELECT COALESCE(SUM(total),0) s FROM invoices WHERE status='Paid'")).s;
@@ -99,7 +99,7 @@ module.exports = function registerAdmin(router) {
     const renewalsThisMonth = (await get("SELECT COUNT(*) c FROM invoices WHERE notes='Renewal' AND date_created >= ?", monthStart)).c;
 
     // 14-day revenue trend for the chart (real data — zero-filled for days without paid invoices).
-    const trendRows = await all(`SELECT date_paid d, SUM(total) s FROM invoices WHERE status='Paid' AND date_paid >= CURDATE() - INTERVAL 13 DAY GROUP BY date_paid`);
+    const trendRows = await all(`SELECT date_paid d, SUM(total) s FROM invoices WHERE status='Paid' AND date_paid::date >= CURRENT_DATE - INTERVAL '13 days' GROUP BY date_paid`);
     const trendMap = Object.fromEntries(trendRows.map((r) => [r.d, r.s]));
     const trendData = [];
     for (let i = 13; i >= 0; i--) {
@@ -111,7 +111,7 @@ module.exports = function registerAdmin(router) {
 
     const upcomingRenewals = await all(`SELECT s.*, c.first_name, c.last_name FROM services s JOIN clients c ON c.id = s.client_id
         WHERE s.status='Active' AND s.type='package' AND s.next_due_date IS NOT NULL
-        AND s.next_due_date <= CURDATE() + INTERVAL 7 DAY ORDER BY s.next_due_date LIMIT 8`);
+        AND s.next_due_date::date <= CURRENT_DATE + INTERVAL '7 days' ORDER BY s.next_due_date LIMIT 8`);
 
     const recentOrders = await all(`SELECT o.*, c.first_name, c.last_name, c.company FROM orders o JOIN clients c ON c.id=o.client_id ORDER BY o.id DESC LIMIT 8`);
     const recentInvoices = await all(`SELECT i.*, c.first_name, c.last_name FROM invoices i JOIN clients c ON c.id=i.client_id ORDER BY i.id DESC LIMIT 8`);
@@ -551,7 +551,7 @@ module.exports = function registerAdmin(router) {
   // active package services due within 7 days that don't already have an unpaid renewal invoice.
   router.post('/admin/services/generate-due', requireAdmin, requirePerm('manage_orders'), async (ctx) => {
     const due = await all(`SELECT * FROM services WHERE status='Active' AND type='package'
-        AND next_due_date IS NOT NULL AND next_due_date <= CURDATE() + INTERVAL 7 DAY`);
+        AND next_due_date IS NOT NULL AND next_due_date::date <= CURRENT_DATE + INTERVAL '7 days'`);
     let generated = 0;
     for (const svc of due) {
       const pending = await get("SELECT id FROM invoices WHERE client_id=? AND notes='Renewal' AND status='Unpaid'", svc.client_id);

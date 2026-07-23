@@ -117,7 +117,7 @@ async function getTopAlerts() {
   const pendingOrders = (await get("SELECT COUNT(*) c FROM orders WHERE status='Pending'")).c;
   const unpaidInvoices = (await get("SELECT COUNT(*) c FROM invoices WHERE status='Unpaid'")).c;
   const expiring = (await get(`SELECT COUNT(*) c FROM services WHERE status='Active' AND type='package'
-      AND next_due_date IS NOT NULL AND next_due_date <= CURDATE() + INTERVAL 7 DAY`)).c;
+      AND next_due_date IS NOT NULL AND next_due_date::date <= CURRENT_DATE + INTERVAL '7 days'`)).c;
   return { pendingOrders, unpaidInvoices, expiring };
 }
 

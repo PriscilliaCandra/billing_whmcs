@@ -1,6 +1,6 @@
 'use strict';
 // Authentication + account loading for admins and clients.
-// (MySQL / mysql2 — async: get mengembalikan Promise, wajib di-await.)
+// (PostgreSQL / pg — async: get mengembalikan Promise, wajib di-await.)
 const { get } = require('../db');
 const { verifyPassword } = require('../lib/crypto');
 

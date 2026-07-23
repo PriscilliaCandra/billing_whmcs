@@ -1,5 +1,14 @@
 'use strict';
-// Database schema + seed data. (MySQL / mysql2 — async.)
+// Database schema + seed data. (PostgreSQL / node-postgres — async.)
+//
+// === FIX GAP KONFIGURASI === WAJIB dimuat SEBELUM `require('./db')` di baris
+// berikutnya — db.js membuat Pool langsung saat modulnya di-load pertama kali
+// (baca process.env SAAT ITU JUGA), jadi kalau .env dimuat SETELAH baris itu
+// (mis. dulu ditaruh di blok `require.main === module` di bawah), Pool sudah
+// terlanjur pakai default salah (localhost) — gagal konek senyap ke server asli.
+// Aman dipanggil dobel (server.js juga memanggilnya): loadEnvFile() tak pernah
+// menimpa key yang sudah ada di process.env.
+require('./lib/loadEnv').loadEnvFile();
 const { run, get, all, exec } = require('./db');
 const { hashPassword } = require('./lib/crypto');
 const { todayISO, nowISO } = require('./lib/format');
@@ -15,24 +24,25 @@ const ALL_PERMISSIONS = [
 ];
 
 async function ensureSchema() {
-  // Catatan konversi MySQL:
-  //  - INTEGER PRIMARY KEY AUTOINCREMENT -> INT AUTO_INCREMENT PRIMARY KEY
-  //  - Kolom ber-UNIQUE/PRIMARY KEY tidak boleh TEXT tanpa panjang -> VARCHAR(n)
-  //  - Kolom tanggal SENGAJA tetap VARCHAR (bukan DATE/DATETIME) supaya nilai
+  // Catatan konversi PostgreSQL:
+  //  - INT AUTO_INCREMENT PRIMARY KEY -> SERIAL PRIMARY KEY
+  //  - Kolom tanggal SENGAJA tetap VARCHAR (bukan DATE/TIMESTAMP) supaya nilai
   //    string ISO ("2026-07-02" / "...T...Z") & perbandingan string tetap identik
-  //    dengan perilaku SQLite lama.
+  //    dengan perilaku lama — query yang butuh date-arithmetic (CURDATE()+INTERVAL
+  //    dulu) cast eksplisit ke ::date di pemanggil (lihat routes/admin.js, ui.js).
   //  - sessions.expires = Date.now()+TTL (~1.7e12) MELEBIHI jangkauan INT -> BIGINT.
   //  - Kolom teks bebas (notes/description/features/address/data) -> TEXT.
+  //  - PostgreSQL tak punya ENGINE=/CHARSET= (default sudah UTF-8).
   await exec(`
     CREATE TABLE IF NOT EXISTS roles (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       name VARCHAR(100) UNIQUE NOT NULL,
       permissions TEXT,
       created_at VARCHAR(30) NOT NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    );
 
     CREATE TABLE IF NOT EXISTS admins (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       name VARCHAR(150) NOT NULL,
       username VARCHAR(100) UNIQUE NOT NULL,
       email VARCHAR(191),
@@ -41,10 +51,10 @@ async function ensureSchema() {
       status VARCHAR(20) NOT NULL DEFAULT 'Active',
       last_login VARCHAR(30),
       created_at VARCHAR(30) NOT NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    );
 
     CREATE TABLE IF NOT EXISTS clients (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       first_name VARCHAR(100) NOT NULL,
       last_name VARCHAR(100),
       email VARCHAR(191) UNIQUE NOT NULL,
@@ -58,10 +68,10 @@ async function ensureSchema() {
       status VARCHAR(20) NOT NULL DEFAULT 'Active',
       notes TEXT,
       created_at VARCHAR(30) NOT NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    );
 
     CREATE TABLE IF NOT EXISTS products (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       name VARCHAR(150) NOT NULL,
       slug VARCHAR(100) UNIQUE NOT NULL,
       type VARCHAR(30) NOT NULL DEFAULT 'package',
@@ -74,10 +84,10 @@ async function ensureSchema() {
       price_12 INT NOT NULL DEFAULT 0,
       status VARCHAR(20) NOT NULL DEFAULT 'Active',
       sort_order INT NOT NULL DEFAULT 0
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    );
 
     CREATE TABLE IF NOT EXISTS orders (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       order_num VARCHAR(40) UNIQUE NOT NULL,
       client_id INT NOT NULL,
       status VARCHAR(20) NOT NULL DEFAULT 'Pending',
@@ -85,10 +95,10 @@ async function ensureSchema() {
       payment_method VARCHAR(50) DEFAULT 'Bank Transfer',
       notes TEXT,
       created_at VARCHAR(30) NOT NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    );
 
     CREATE TABLE IF NOT EXISTS services (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       client_id INT NOT NULL,
       product_id INT NOT NULL,
       order_id INT,
@@ -102,10 +112,10 @@ async function ensureSchema() {
       reg_date VARCHAR(30),
       next_due_date VARCHAR(30),
       created_at VARCHAR(30) NOT NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    );
 
     CREATE TABLE IF NOT EXISTS invoices (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       invoice_num VARCHAR(40) UNIQUE NOT NULL,
       client_id INT NOT NULL,
       order_id INT,
@@ -117,28 +127,28 @@ async function ensureSchema() {
       total INT NOT NULL DEFAULT 0,
       payment_method VARCHAR(50) DEFAULT 'Bank Transfer',
       notes VARCHAR(100)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    );
 
     CREATE TABLE IF NOT EXISTS invoice_items (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       invoice_id INT NOT NULL,
       type VARCHAR(30) NOT NULL DEFAULT 'line',
       description VARCHAR(500) NOT NULL,
       amount INT NOT NULL DEFAULT 0
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    );
 
     CREATE TABLE IF NOT EXISTS sessions (
       sid VARCHAR(64) PRIMARY KEY,
       data TEXT NOT NULL,
       expires BIGINT NOT NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    );
 
     CREATE TABLE IF NOT EXISTS activity_log (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       actor VARCHAR(150),
       action VARCHAR(255),
       created_at VARCHAR(30) NOT NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    );
   `);
 }
 
@@ -302,7 +312,7 @@ module.exports = { ensureSchema, seed, reset, ALL_PERMISSIONS };
 if (require.main === module) {
   const arg = process.argv[2];
   const task = arg === '--reset' ? reset : arg === '--seed' ? seed : ensureSchema;
-  // Jalankan lalu tutup pool agar proses keluar bersih (mysql2 menahan event loop).
+  // Jalankan lalu tutup pool agar proses keluar bersih (pg menahan event loop).
   const { pool } = require('./db');
   task()
     .then(() => pool.end())
