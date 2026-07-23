@@ -1,61 +1,59 @@
-# Handoff — Integrasi SahabatAI Billing ke ai.indotrading.com
+# Handoff — Integrasi SahabatAI Billing ke omset.ai
 
 Dokumen ini untuk tim yang akan **merge / deploy** aplikasi billing ini supaya terhubung
-dengan domain **https://ai.indotrading.com/** (landing page SahabatAI). Untuk penjelasan
-fitur & cara pakai sehari-hari, lihat [README.md](README.md).
+dengan domain prod OmsetAI (**https://omset.ai/**). Untuk penjelasan fitur & cara pakai
+sehari-hari, lihat [README.md](README.md).
 
 ## Apa isinya
 
 Aplikasi billing bergaya WHMCS (storefront + checkout + client area + admin panel) untuk
 jual paket SahabatAI (Starter/Growth/Professional/Enterprise + add-on Training User).
-Ditulis sebagai **satu proses Node.js tunggal, tanpa dependency eksternal** — hanya modul
-bawaan Node (`node:http`, `node:sqlite`, `node:crypto`). Tidak ada `npm install`, tidak ada
-build step, database SQLite dibuat otomatis di `data/whmcs.db`.
-
-Kenapa dibuat begini: supaya mudah di-review, di-deploy, dan dipindah-pindah tanpa
-bergantung pada registry npm atau versi paket pihak ketiga.
+Satu proses Node.js (`node:http`, `node:crypto`) + **PostgreSQL** via `pg` (node-postgres) —
+database TERPISAH dari database `sahabatai` (backend CRM utama).
 
 ## Requirement
 
-- **Node.js 22.5+** (perlu `node:sqlite`, ditandai *experimental* oleh Node.js — jalan
-  stabil di pengujian kami, tapi cek dulu di versi Node yang dipakai server produksi kalian).
-  Jika platform target tidak mengizinkan modul experimental, opsi migrasi ada di bagian
-  **Catatan Migrasi Database** di bawah.
-- Tidak butuh database eksternal, tidak butuh reverse proxy khusus (tapi direkomendasikan
-  ada satu di depan untuk TLS — lihat bagian Integrasi).
+- **Node.js 18+**
+- Instans PostgreSQL yang bisa diakses server (managed cloud atau lokal) — lihat
+  **Environment Variables** di bawah untuk kredensial koneksi.
 
 ## Menjalankan
 
 ```bash
-node server.js
+npm install
+npm start
 ```
 
-Default port **3400** (`PORT=8080 node server.js` untuk ganti). Server bind ke `0.0.0.0`
+Default port **3400** (`PORT=8080 npm start` untuk ganti). Server bind ke `0.0.0.0`
 sehingga otomatis bisa diakses dari luar `localhost` begitu firewall/port dibuka.
 
 ## Environment Variables
 
+Salin `.env.example` ke `.env` lalu isi. Ringkasan:
+
 | Variable | Default | Kegunaan |
 |---|---|---|
+| `PG_HOST`/`PG_PORT`/`PG_USER`/`PG_PASSWORD`/`PG_DATABASE`/`PG_SSL` | — | Koneksi PostgreSQL (WAJIB diisi, tak ada default aman) |
 | `PORT` | `3400` | Port HTTP yang dipakai server |
-| `WHMCS_DB` | `data/whmcs.db` | Lokasi file database SQLite |
 | `SHOW_DEMO_HINTS` | *(off)* | Set `true` **hanya di lingkungan dev/demo internal** untuk menampilkan kredensial demo di halaman login. **Biarkan tidak di-set (default: tersembunyi) di production/publik.** |
 | `TRUST_PROXY` | *(off)* | Set `true` jika app dijalankan di belakang reverse proxy yang terminasi TLS (Nginx/Cloudflare/dll) dan meneruskan header `X-Forwarded-Proto: https` — ini membuat cookie sesi otomatis diberi flag `Secure`. |
+| `JWT_SECRET` | — | SSO dari OmsetAI + sinkron invoice CRM — WAJIB SAMA PERSIS dgn `JWT_SECRET` di `.env` sahabatai-backend |
+| `SAHABATAI_API_BASE` / `WHMCS_INTERNAL_SECRET` | — | Revokasi sesi lintas-domain saat logout — lihat komentar di `.env.example` |
 
-## Integrasi ke domain ai.indotrading.com
+## Integrasi ke domain omset.ai
 
 Ada dua pola umum. **Subdomain lebih direkomendasikan** karena tidak perlu ubah kode apa pun.
 
-### Opsi A — Subdomain (rekomendasi): `billing.ai.indotrading.com`
+### Opsi A — Subdomain (rekomendasi): `billing.omset.ai`
 
-1. Jalankan `node server.js` di server sebagai service (lihat **Menjaga Proses Tetap Hidup**
+1. Jalankan `server.js` di server sebagai service (lihat **Menjaga Proses Tetap Hidup**
    di bawah), listen di port internal (mis. 3400).
-2. Arahkan DNS `billing.ai.indotrading.com` (atau nama subdomain lain) ke server tersebut.
+2. Arahkan DNS `billing.omset.ai` ke server yang sama dengan `omset.ai`.
 3. Pasang reverse proxy (Nginx contoh di bawah) yang terminasi HTTPS dan proxy ke
    `http://127.0.0.1:3400`.
 4. Set `TRUST_PROXY=true` saat menjalankan `server.js` supaya cookie sesi otomatis `Secure`.
-5. Di landing page `ai.indotrading.com`, ubah tombol **"Coba Gratis"** / **"Masuk"** / link
-   Harga agar mengarah ke `https://billing.ai.indotrading.com/` (storefront) — lihat bagian
+5. Di landing page `omset.ai`, ubah tombol **"Coba Gratis"** / **"Masuk"** / link
+   Harga agar mengarah ke `https://billing.omset.ai/` (storefront) — lihat bagian
    **Titik Sambung dari Landing Page** di bawah untuk detail per tombol.
 
 Contoh konfigurasi Nginx:
@@ -63,10 +61,10 @@ Contoh konfigurasi Nginx:
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name billing.ai.indotrading.com;
+    server_name billing.omset.ai;
 
-    ssl_certificate     /etc/letsencrypt/live/billing.ai.indotrading.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/billing.ai.indotrading.com/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/billing.omset.ai/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/billing.omset.ai/privkey.pem;
 
     location / {
         proxy_pass http://127.0.0.1:3400;
@@ -78,7 +76,7 @@ server {
 }
 ```
 
-### Opsi B — Subpath: `ai.indotrading.com/billing`
+### Opsi B — Subpath: `omset.ai/billing`
 
 **Belum didukung out-of-the-box.** Semua route di app ini pakai path absolut
 (`/admin`, `/clientarea`, `/login`, dst — lihat `routes/admin.js` & `routes/client.js`),
@@ -95,24 +93,23 @@ punya beberapa CTA yang perlu diarahkan ke billing:
 
 | Elemen di landing page | Arahkan ke |
 |---|---|
-| Tombol "Coba Gratis" / "Mulai Sekarang" (paket Starter–Professional) | `https://billing.ai.indotrading.com/` (storefront pricing) |
-| Link section `#harga` / "Pilih Growth" dsb. | `https://billing.ai.indotrading.com/` |
+| Tombol "Coba Gratis" / "Mulai Sekarang" (paket Starter–Professional) | `https://billing.omset.ai/` (storefront pricing) |
+| Link section `#harga` / "Pilih Growth" dsb. | `https://billing.omset.ai/` |
 | Tombol "Hubungi Sales" (Enterprise) | tetap ke form/WA sales seperti sekarang — Enterprise di billing app statusnya "mulai dari, harga custom", bukan checkout otomatis |
-| Login existing user | `https://billing.ai.indotrading.com/login` (client area) |
+| Login existing user | `https://billing.omset.ai/login` (client area) |
 
 Billing app ini **mewajibkan user sudah punya akun SahabatAI dulu** sebelum checkout
 (sesuai requirement awal) — form register di `/register` punya checkbox konfirmasi untuk itu.
 
 ## Menjaga Proses Tetap Hidup (production)
 
-`node server.js` berjalan sebagai proses tunggal — di production jangan dijalankan manual
+`server.js` berjalan sebagai proses tunggal — di production jangan dijalankan manual
 di terminal. Pakai salah satu:
 
+- **pm2** (rekomendasi, konsisten dgn sahabatai-backend di server yang sama) —
+  `pm2 start server.js --name sahabatai-billing`, lalu `pm2 save`.
 - **systemd** (Linux) — buat unit file yang menjalankan `node server.js` dengan
   `Restart=always`, `Environment=PORT=3400`, `Environment=TRUST_PROXY=true`.
-- **pm2** — `pm2 start server.js --name sahabatai-billing` (perlu `npm install -g pm2`
-  di server target; catatan: `npm` di mesin development kami sempat rusak, jadi verifikasi
-  dulu `npm` sehat di server tujuan sebelum bergantung padanya).
 
 ## Checklist Keamanan Sebelum Go-Live
 
@@ -124,20 +121,10 @@ di terminal. Pakai salah satu:
       aman/tersembunyi — cukup pastikan tidak ada yang menyalakannya).
 - [ ] **Set `TRUST_PROXY=true`** kalau memang di belakang reverse proxy HTTPS, supaya cookie
       sesi dapat flag `Secure`.
-- [ ] **Backup rutin `data/whmcs.db`** — ini satu file SQLite, gampang di-backup (`cp`/rsync
-      berkala), tapi juga gampang hilang kalau tidak dibackup sama sekali.
-- [ ] Review isi `data/whmcs.db` sebelum go-live — kalau ingin mulai dari kosong (tanpa data
-      dummy demo), jalankan `node src/schema.js --reset` di server target SEBELUM
-      membiarkan user asli mendaftar.
-
-## Catatan Migrasi Database (opsional, jika `node:sqlite` bermasalah di server target)
-
-Aplikasi ini mengakses database lewat satu file (`src/db.js`) yang membungkus
-`node:sqlite`. Kalau server produksi kalian pakai versi Node yang lebih lama atau
-kebijakan yang melarang modul experimental, cara migrasi paling ringan: ganti isi
-`src/db.js` untuk pakai library SQLite pihak ketiga (mis. `better-sqlite3`) dengan API
-yang sama (`get`/`all`/`run`) — kode lain di aplikasi (routes, services) tidak perlu
-diubah karena semua akses DB sudah lewat helper ini.
+- [ ] **Backup rutin database PostgreSQL** (`pg_dump`) — jadwalkan cron/managed-backup di
+      penyedia Postgres-nya, bukan cuma andalkan snapshot server aplikasi.
+- [ ] Review isi database sebelum go-live — kalau ingin mulai dari kosong (tanpa data dummy
+      demo), jalankan `npm run reset` di server target SEBELUM membiarkan user asli mendaftar.
 
 ## Struktur Proyek
 
@@ -149,4 +136,4 @@ Lihat bagian **Struktur Proyek** di [README.md](README.md).
   saja, tidak pernah diubah.
 - Data produk & harga: `material project sahabat ai/Sahabat AI - GTM Kit/02_Pricing_Model/Sahabat_AI_Pricing_Model.xlsx`
   dan landing page di folder yang sama.
-- Tema warna: mengikuti hijau SahabatAI dari `ai.indotrading.com`.
+- Tema warna: mengikuti hijau SahabatAI dari OmsetAI.
