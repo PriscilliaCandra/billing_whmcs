@@ -263,10 +263,10 @@ module.exports = function registerClient(router) {
       <h1>Edit Profil</h1>
       <form method="post" action="/clientarea/profile"><div class="card"><div class="card-body">
         <div class="form-grid">
-          <div class="form-row"><label class="lbl">Nama Depan</label><input name="first_name" value="${esc(c.first_name)}" required></div>
-          <div class="form-row"><label class="lbl">Nama Belakang</label><input name="last_name" value="${esc(c.last_name || '')}"></div>
-          <div class="form-row"><label class="lbl">Perusahaan</label><input name="company" value="${esc(c.company || '')}"></div>
-          <div class="form-row"><label class="lbl">No. HP</label><input name="phone" value="${esc(c.phone || '')}"></div>
+          <div class="form-row"><label class="lbl">Nama Depan</label><input type="text" name="first_name" value="${esc(c.first_name)}" required></div>
+          <div class="form-row"><label class="lbl">Nama Belakang</label><input type="text" name="last_name" value="${esc(c.last_name || '')}"></div>
+          <div class="form-row"><label class="lbl">Perusahaan</label><input type="text" name="company" value="${esc(c.company || '')}"></div>
+          <div class="form-row"><label class="lbl">No. HP</label><input type="text" name="phone" value="${esc(c.phone || '')}"></div>
         </div>
         <div class="form-row"><label class="lbl">Password Baru (opsional)</label><input type="password" name="password"><div class="help">Kosongkan jika tidak diubah.</div></div>
         <button class="btn" type="submit">Simpan</button> <a href="/clientarea" class="btn btn-ghost">Kembali</a>
@@ -339,13 +339,13 @@ module.exports = function registerClient(router) {
         <div class="alert alert-info" style="font-size:.82rem">Wajib punya akun OmsetAI dulu. Belum punya? <a href="https://omset.ai/" target="_blank">Daftar di omset.ai</a> lalu kembali ke sini.</div>
         <form method="post" action="/register">
           <div class="form-grid">
-            <div class="form-row"><label class="lbl">Nama Depan</label><input name="first_name" value="${esc(f.first_name || '')}" required></div>
-            <div class="form-row"><label class="lbl">Nama Belakang</label><input name="last_name" value="${esc(f.last_name || '')}"></div>
+            <div class="form-row"><label class="lbl">Nama Depan</label><input type="text" name="first_name" value="${esc(f.first_name || '')}" required></div>
+            <div class="form-row"><label class="lbl">Nama Belakang</label><input type="text" name="last_name" value="${esc(f.last_name || '')}"></div>
           </div>
           <div class="form-row"><label class="lbl">Email (sama dengan akun OmsetAI)</label><input type="email" name="email" value="${esc(f.email || '')}" required></div>
           <div class="form-grid">
-            <div class="form-row"><label class="lbl">Perusahaan</label><input name="company" value="${esc(f.company || '')}"></div>
-            <div class="form-row"><label class="lbl">No. HP</label><input name="phone" value="${esc(f.phone || '')}"></div>
+            <div class="form-row"><label class="lbl">Perusahaan</label><input type="text" name="company" value="${esc(f.company || '')}"></div>
+            <div class="form-row"><label class="lbl">No. HP</label><input type="text" name="phone" value="${esc(f.phone || '')}"></div>
           </div>
           <div class="form-row"><label class="lbl">Password</label><input type="password" name="password" required></div>
           <label class="opt-card" style="cursor:pointer"><input type="checkbox" name="confirm_sahabat"><div><div class="opt-title">Saya sudah punya akun OmsetAI</div><div class="muted" style="font-size:.78rem">Terdaftar di omset.ai</div></div></label>
